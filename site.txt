@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <title>Maide Yılmaz</title>
 </head>
-<body>
-<a href="https://github.com/miade12" title="click here">My github account</a>
+
+<body style="background-color:GhostWhite;>
+
+<h1 style="font-size:300%;">copyright, right?</h1>
+<p style="font-size:160%;color:tomato;text-align:center;">Welcome</p>
+<hr>
+<br>
+<a href="https://github.com/miade12" title="click here" style="text-align:center;">My github account</a>
+
 </body>
 
 
