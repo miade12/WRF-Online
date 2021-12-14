@@ -1,172 +1,36 @@
 <!DOCTYPE html>
 <html>
-
-
 <head>
-<title> WRF Online </title>
-
-<style>
 
 
-#container
-
-    {
-
-        width: 1000px;
-        height: 700px;
-        background-color: #e1f0ff;
-        border: 5px solid #020489;
-        position: absolute;
-        left: 6%;
-        top: 35%;
-        margin-left: -50px;
-        margin-top: -50px;
-        font-family: "Georgia";
-}
-
-#container2
-
-    {
-
-        width: 1000px;
-        height: 300px;
-        background-color: #e1f0ff;
-        border: 5px solid #020489;
-        position: absolute;
-        left: 6%;
-        top: 100%;
-        margin-left: -50px;
-        margin-top: -50px;
-        font-family: "Georgia";
-}
-
-
-#rcorners2 {
-  border-radius: 25px;
-  border: 5px solid #020489;
-  background: #e1f0ff;
-  padding: 10px; 
-  width: 1000px;
-  height: 58px;  
-  color: #27517a;
-  text-align: center;
-  font-size: 30px;
-  font-family: "Georgia";
-
-}
- 
-
-.button {
-  display: inline-block;
-  border-radius: 4px;
-  background-color: #89d0d4;
-  border: true;
-  color: #FFFFFF;
-  text-align: center;
-  font-size: 15px;
-  padding: 10px;
-  width: 150px;
-  transition: all 0.5s;
-  cursor: pointer;
-  margin: 5px;
-}
-
-.button span {
-  cursor: pointer;
-  display: inline-block;
-  position: relative;
-  transition: 0.5s;
-}
-
-.button span:after {
-  content: '\00bb';
-  position: absolute;
-  opacity: 0;
-  top: 0;
-  right: -20px;
-  transition: 0.5s;
-}
-
-.button:hover span {
-  padding-right: 25px;
-}
-
-.button:hover span:after {
-  opacity: 1;
-  right: 0;
-}
-
-
-
-</style>
 
 </head>
+  <body>
+  <div style="text-align:center; color: white;background-color:blue;">
+   <h5> WRF Online</h5>
+  </div>
+    <form method="post" action="http://127.0.0.1:5000/" >
+      <center>
+        <table>
+          <tbody>
+            <tr><p>start-date&nbsp &nbsp<input type="text"
+                                             id="start-date"
+                                             name="start-date"></tr></p>
+            <br>
+            <br>
+            <tr><p>Sayi gir&nbsp &nbsp<input type="text"></tr></p>
+            <br>
+            <br>
+            <tr><p>Sayi gir&nbsp &nbsp<input type="text"></tr></p>
+            <input type="submit">
+          </tbody>
+        </table>
+
+      </center>
 
 
 
 
-
-<body style="background-color:whitesmoke;">
-
-<p id="rcorners2"; font-family: "Georgia"; > Weather Research and Forecasting Model (WRF) <br> Online </p>
-
-
-
-
-<div id="container">
-
-    <p> WRF Preprocessing System (WPS) </p>
-<p>
-<label for="latitude">Choose latitude:</label>
-
-<select name="latitude" id="lat">
-  <option value="0">0</option>
-  <option value="20">20</option>
-  <option value="30">30</option>
-  <option value="40">40</option>
-</select>
-<br>
-<br>
-<label for="longitude">Choose longitude:</label>
-
-<select name="longitude" id="lon">
-  <option value="10">10</option>
-  <option value="20">20</option>
-  <option value="30">30</option>
-  <option value="40">40</option>
-</select>
-<br>
-<br>
-<label for="startDate">Start Date:</label>
-
-<select name="start_date" id="sd">
-  <option value="0">0</option>
-  <option value="20">20</option>
-  <option value="30">30</option>
-  <option value="40">40</option>
-</select>
-<br>
-<br>
-<label for="endDate">End Date:</label>
-
-<select name="end_date" id="ed">
-  <option value="0">0</option>
-  <option value="20">20</option>
-  <option value="30">30</option>
-  <option value="40">40</option>
-</select>
-<br>
-<br>
-<button class="button" style="vertical-align:middle"><span> Control Domain </span></button>
-<p/>
-    </div>
-
-<div id="container2">
-
-    <p> Check up the namelist.input and Run WRF </p>
-
-</div>
-
-
-</body>
+    </form>
+  </body>
 </html>
