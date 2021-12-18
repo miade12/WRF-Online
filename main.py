@@ -1,5 +1,4 @@
 # importing Flask and other modules
-from typing import Optional
 
 from flask import Flask, request, render_template
 
@@ -9,13 +8,30 @@ app = Flask(__name__)
 @app.route('/', methods=["POST"])
 def wps():
     if request.method == "POST":
-        sd = request.form.get("start-date")
-        with open("/home/miade/Desktop/test/test", "w") as fo:
-            fo.write(sd)
-        return render_template('index.html')
+        sd = request.form.get("start_date")
+        ed = request.form.get("end_date")
+        isec = request.form.get("interval_seconds")
+
+        file = open('/home/miade/PycharmProjects/WRF-Online/wrf_statics/test_namelist_wps.py', "w")
+        print("start_date = '{}' ".format(sd), file=file)
+        print("end_date = '{}' ".format(ed), file=file)
+        print("interval_seconds = '{}' ".format(isec), file=file)
+
+    return render_template('index.html')
+
+
 
 
 """
+       
+fin = open('/home/miade/PycharmProjects/WRF-Online/wrf_statics/test_namelist_wps.py', 'wt')
+        
+        for line in fin:
+            fin.write(line.replace('{}', sd))
+
+fo.print('start_date = '{}' /n2 end_date = {}').format(sd,ed)
+isec = request.form.get("interval_second")
+
 WPS verileri
 max_dom = 1
 start_date = '2016-10-06_00:00:00',
