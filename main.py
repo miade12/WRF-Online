@@ -1,6 +1,7 @@
 # importing Flask and other modules
 
 from flask import Flask, request, render_template
+import os
 
 app = Flask(__name__)
 
@@ -11,11 +12,17 @@ def wps():
         sd = request.form.get("start_date")
         ed = request.form.get("end_date")
         isec = request.form.get("interval_seconds")
+        go_file = "mkdir /home/miade/Desktop/test/{}".format(sd)
+        get_data = "cd /home/miade/Desktop/test/DATA && wget " \
+                   "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{}/00/atmos/gfs.t00z.atmf007.nc".format(sd)
 
         file = open('/home/miade/PycharmProjects/WRF-Online/wrf_statics/test_namelist_wps.py', "w")
         print("start_date = '{}' ".format(sd), file=file)
         print("end_date = '{}' ".format(ed), file=file)
         print("interval_seconds = '{}' ".format(isec), file=file)
+
+        os.system("mkdir /home/miade/Desktop/test/DATA")
+        os.system(get_data)
 
     return render_template('index.html')
 
