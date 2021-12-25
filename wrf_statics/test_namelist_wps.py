@@ -1,3 +1,3 @@
-start_date = '20211217' 
-end_date = '6' 
-interval_seconds = '77' 
+start_date = 'None' 
+end_date = 'None' 
+interval_seconds = 'None' 

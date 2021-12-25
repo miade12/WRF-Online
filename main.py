@@ -6,15 +6,13 @@ import os
 app = Flask(__name__)
 
 
-@app.route('/', methods=["POST"])
+@app.route('/', methods=["GET", "POST"])
 def wps():
     if request.method == "POST":
         sd = request.form.get("start_date")
         ed = request.form.get("end_date")
         isec = request.form.get("interval_seconds")
         go_file = "mkdir /home/miade/Desktop/test/{}".format(sd)
-        get_data = "cd /home/miade/Desktop/test/DATA && wget " \
-                   "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{}/00/atmos/gfs.t00z.atmf007.nc".format(sd)
 
         file = open('/home/miade/PycharmProjects/WRF-Online/wrf_statics/test_namelist_wps.py', "w")
         print("start_date = '{}' ".format(sd), file=file)
@@ -22,14 +20,51 @@ def wps():
         print("interval_seconds = '{}' ".format(isec), file=file)
 
         os.system("mkdir /home/miade/Desktop/test/DATA")
-        os.system(get_data)
 
     return render_template('index.html')
 
 
+@app.route('/wps', methods=["GET", "POST"])
+def wrf():
+    if request.method == "POST":
+
+        os.system("mkdir /home/miade/Desktop/test/DATA")
+
+    return render_template('wps.html')
+
+
+@app.route('/wrf', methods=["GET", "POST"])
+def wrf2():
+    if request.method == "POST":
+        os.system("mkdir /home/miade/Desktop/test/DATA")
+    return render_template('wrf.html')
 
 
 """
+
+
+@app.route('/wps', methods=["GET", "POST"])
+def wrf():
+    if request.method == "POST":
+
+        os.system("mkdir /home/miade/Desktop/test/DATA")
+
+    return render_template('wrf.html')
+
+
+@app.route('/wps/wrf', methods=["GET", "POST"])
+def wrf():
+    if request.method == "POST":
+        os.system("mkdir /home/miade/Desktop/test/DATA")
+    return render_template('wrf.html')
+    
+    
+ get_data = "cd /home/miade/Desktop/test/DATA && wget " \
+                   "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.{}/00/atmos/gfs.t00z.atmf007.nc".format(sd)
+                   os.system(get_data)
+                   
+                   yukarıdaki satırları html sayfaları tamamlandıktan sonra ekle.!
+    
        
 fin = open('/home/miade/PycharmProjects/WRF-Online/wrf_statics/test_namelist_wps.py', 'wt')
         
