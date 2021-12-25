@@ -7,25 +7,59 @@ app = Flask(__name__)
 
 
 @app.route('/', methods=["GET", "POST"])
-def wps():
+def pre():
     if request.method == "POST":
         sd = request.form.get("start_date")
         ed = request.form.get("end_date")
         isec = request.form.get("interval_seconds")
-        go_file = "mkdir /home/miade/Desktop/test/{}".format(sd)
+        get_data = "cd /home/miade/Build_WRF/DATA/matthew && curl " \
+                   "https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs" \
+                   ".{20211221}/{06}/atmos/gfs.t{06}z.pgrb2.0p25.f0{01}".format(sd)
+        os.system(get_data)
+        os.system("/home/miade/Build_WRF/WPS-4.3/util/g2print.exe /home/miade"
+                  "/Build_WRF/DATA/matthew >& g2print.log")
+        os.system("ln -sf /home/miade/Build_WRF/WPS-4.3/ungrib/Variable_Tables/Vtable.GFS Vtable")
+        os.system("/home/miade/Build_WRF/WPS-4.3/link_grib.csh /home/miade/Build_WRF/DATA/matthew/gfs")
 
-        file = open('/home/miade/PycharmProjects/WRF-Online/wrf_statics/test_namelist_wps.py', "w")
-        print("start_date = '{}' ".format(sd), file=file)
-        print("end_date = '{}' ".format(ed), file=file)
-        print("interval_seconds = '{}' ".format(isec), file=file)
-
-        os.system("mkdir /home/miade/Desktop/test/DATA")
+        file = open('home/miade/Build_WRF/WPS-4.3/namelist.wps', "w")
+        print("&share")
+        print("wrf_core = 'ARW' ,")
+        print("max_dom = 1,")
+        print("start_date = '{}' ,".format(sd), file=file)
+        print("end_date = '{}' ,".format(ed), file=file)
+        print("interval_seconds = '{}' ,".format(isec), file=file)
+        print("&geogrid "
+              "parent_id = 1,"
+              "parent_grid_ratio = 1,"
+              " i_parent_start    =   1, "
+              " j_parent_start    =   1,"
+              " e_we              =  91,"
+              " e_sn              =  100,"
+              " geog_data_res = 'default',"
+              " dx = 27000,"
+              " dy = 27000,"
+              " map_proj = 'mercator',"
+              " ref_lat   =  28.00,"
+              " ref_lon   = -75.00,"
+              " truelat1  =  30.0,"
+              " truelat2  =  60.0,"
+              " stand_lon = -75.0,"
+              " geog_data_path = '../WPS_GEOG'"
+              "/"
+              "&ungrib"
+              " out_format = 'WPS',"
+              " prefix = 'FILE',"
+              "/"
+              "&metgrid"
+              " fg_name = 'FILE'"
+              "/")
+        os.system("./ungrib.exe")
 
     return render_template('index.html')
 
 
 @app.route('/wps', methods=["GET", "POST"])
-def wrf():
+def wps():
     if request.method == "POST":
 
         os.system("mkdir /home/miade/Desktop/test/DATA")
@@ -34,7 +68,7 @@ def wrf():
 
 
 @app.route('/wrf', methods=["GET", "POST"])
-def wrf2():
+def wrf():
     if request.method == "POST":
         os.system("mkdir /home/miade/Desktop/test/DATA")
     return render_template('wrf.html')

@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title>WRF-Online</title>
   <style>
     body {
-    background-color: beige;
+    background-color: rgb(228, 237, 232);
     }
 
     .header {
     font-size: 40px;
     }
+
   </style>
 
 </head>
   <body>
-  <div style="text-align:center; color: white;background-color:blue;">
+  <div style="text-align:center; color: white;background-color:rgb(22,8,90);">
    <p class="header" > WRF-Online</p>
   </div>
     <form method="post" action="http://127.0.0.1:5000/wps" >
@@ -23,17 +25,17 @@
 
           <tbody>
 
-            <tr>Start Date &nbsp &nbsp<input type="text"
+            <tr>Start Date &nbsp &nbsp &nbsp &nbsp &nbsp<input type="text"
                                              id="start_date"
                                              name="start_date"></tr>
             <br>
             <br>
-            <tr>End Date&nbsp &nbsp<input type="text"
+            <tr>End Date &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp<input type="text"
                                           id="end_date"
                                           name="end_date"></tr>
             <br>
             <br>
-            <tr>Interval seconds &nbsp &nbsp<input type="text"
+            <tr>Interval seconds &nbsp<input type="text"
                                                     id="interval_seconds"
                                                     name="interval_seconds"></tr>
             <br>
@@ -45,11 +47,17 @@
         </table>
 
 
+
       </center>
 
 
 
 
     </form>
+
+  <footer>
+
+  <div align="center"><img style="width:5%;padding-top:15%;" src="https://cdn.freelogovectors.net/wp-content/uploads/2016/12/itu-istanbul-teknik_universitesi-logo.png" alt="logo"></div>
+  </footer>
   </body>
 </html>
