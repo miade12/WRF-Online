@@ -3,7 +3,7 @@
 from flask import Flask, request, render_template
 import os
 
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='/static')
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -61,16 +61,21 @@ def pre():
 @app.route('/wps', methods=["GET", "POST"])
 def wps():
     if request.method == "POST":
-
-        os.system("mkdir /home/miade/Desktop/test/DATA")
-
+        pass
     return render_template('wps.html')
+
+
+@app.route('/domain', methods=["GET", "POST"])
+def domain():
+    if request.method == "POST":
+        pass
+    return render_template('geogrid_ncl.html')
 
 
 @app.route('/wrf', methods=["GET", "POST"])
 def wrf():
     if request.method == "POST":
-        os.system("mkdir /home/miade/Desktop/test/DATA")
+        pass
     return render_template('wrf.html')
 
 
