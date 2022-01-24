@@ -1,20 +1,160 @@
 # importing Flask and other modules
-
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, url_for, redirect
+from typing import Optional
 import os
 
-app = Flask(__name__,static_url_path='/static')
+
+app = Flask(__name__, static_url_path='/static')
 
 
 @app.route('/', methods=["GET", "POST"])
-def pre():
-    if request.method == "POST":
+def dom():
+
+    return render_template("index.html")
+
+
+@app.route('/wps', methods=["GET", "POST"])
+def wps():
+
+    sd = request.form.get("start_date")
+    ed = request.form.get("end_date")
+    isec = request.form.get("interval_seconds")
+    #forecastHour hesaplamaları
+    forecastHour = ""
+    saat = int(int(isec)/3600)
+    if saat < 10:
+        forecastHour = "00" + str(saat)
+    elif saat < 100:
+        forecastHour = "0" + str(saat)
+    else:
+        forecastHour = str(saat)
+    """"
+    get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
+               'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
+               '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.f{forecastHour}'.\
+        format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0], forecastHour=forecastHour)
+    
+    os.system(get_data)
+    """
+
+    familiar = 'cd /home/miade/Build_WRF/WPS-4.3/util/ && ./g2print.exe ' \
+               '/home/miade/Build_WRF/DATA/gfs* >& g2print.log'
+    os.system(familiar)
+    gfsvtables = 'cd /home/miade/Build_WRF/WPS-4.3/ && ln -sf ungrib/Variable_Tables/Vtable.GFS Vtable'
+    os.system(gfsvtables)
+    linkgribdata = 'cd /home/miade/Build_WRF/WPS-4.3/ && ./link_grib.csh /home/miade/Build_WRF/DATA/gfs '
+    os.system(linkgribdata)
+
+    with open("/home/miade/Build_WRF/WPS-4.3/namelist.wps", "w") as fo:
+        fo.write("&share\n")
+        fo.write("wrf_core = 'ARW' ,\n")
+        fo.write("max_dom = 1,\n")
+        fo.write("start_date = '{}' ,\n".format(sd))
+        fo.write("end_date = '{}' ,\n".format(ed))
+        fo.write("interval_seconds = {} ,\n".format(isec))
+        fo.write("/\n")
+        fo.write("&geogrid\n"
+              "parent_id = 1,\n"
+              "parent_grid_ratio = 1,\n"
+              " i_parent_start    =   1,\n"
+              " j_parent_start    =   1,\n"
+              " e_we              =  91,\n"
+              " e_sn              =  100,\n"
+              " geog_data_res = 'default',\n"
+              " dx = 27000,\n"
+              " dy = 27000,\n"
+              " map_proj = 'mercator',\n"
+              " ref_lat   =  28.00,\n"
+              " ref_lon   = -75.00,\n"
+              " truelat1  =  30.0,\n"
+              " truelat2  =  60.0,\n"
+              " stand_lon = -75.0,\n"
+              " geog_data_path = '/home/miade/Build_WRF/WPS_GEOG'\n"
+              "/\n"
+              "&ungrib\n"
+              " out_format = 'WPS',\n"
+              " prefix = 'FILE',\n"
+              "/\n"
+              "&metgrid\n"
+              " fg_name = 'FILE'\n"
+              "/")
+        fo.close()
+
+        os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./ungrib.exe")
+
+    return render_template('wps.html')
+
+
+
+@app.route('/domain', methods=["GET", "POST"])
+def domain():
+    e_we = request.form.get("e_we")
+    e_sn = request.form.get("e_sn")
+    dx = request.form.get("dx")
+    dy = request.form.get("dy")
+    ref_lat = request.form.get("ref_lat")
+    ref_lon = request.form.get("ref_lon")
+    truelat1 = request.form.get("truelat1")
+    truelat2 = request.form.get("truelat2")
+    stand_lon = request.form.get("stand_lon")
+    with open("home/miade/Build_WRF/WPS-4.3/namelist.wps", "w") as fo:
+        fo.write("&share")
+        fo.write("wrf_core = 'ARW' ,")
+        fo.write("max_dom = 1,")
+        fo.write("start_date = '{}' ,".format(sd))
+        fo.write("end_date = '{}' ,".format(ed))
+        fo.write("interval_seconds = '{}' ,".format(isec))
+        fo.write("&geogrid "
+                 "parent_id = 1,"
+                 "parent_grid_ratio = 1,"
+                 " i_parent_start    =   1, "
+                 " j_parent_start    =   1,"
+                 " e_we              =  {e_we} ,"
+                 " e_sn              =  {e_sn} ,"
+                 " geog_data_res = 'default',"
+                 " dx = {dx} ,"
+                 " dy = {dy},"
+                 " map_proj = 'mercator',"
+                 " ref_lat   =  {ref_lat},"
+                 " ref_lon   = {ref_lon},"
+                 " truelat1  =  {truelat1},"
+                 " truelat2  =  {truelat2},"
+                 " stand_lon = {stand_lon},"
+                 " geog_data_path = '/home/miade/Build_WRF/WPS_GEOG'"
+                 "/"
+                 "&ungrib"
+                 " out_format = 'WPS',"
+                 " prefix = 'FILE',"
+                 "/"
+                 "&metgrid"
+                 " fg_name = 'FILE'"
+                 "/".format(e_we=e_we, e_sn=e_sn, dx=dx, dy=dy, ref_lon=ref_lon, ref_lat=ref_lat, truelat1=truelat1, truelat2=truelat2, stand_lon=stand_lon))
+        os.system('cd /home/miade/Build_WRF/WPS-4.3/ && ./geogrid.exe')
+    return render_template('geogrid_ncl.html')
+
+
+@app.route('/wrf', methods=["GET", "POST"])
+def wrf():
+    pass
+    return render_template('wrf.html')
+
+
+app.run(port=5000)
+
+
+"""
+
+
+    
+    
+    
+    
         sd = request.form.get("start_date")
         ed = request.form.get("end_date")
         isec = request.form.get("interval_seconds")
-        get_data = "cd /home/miade/Build_WRF/DATA/matthew && curl " \
-                   "https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs" \
-                   ".{20211221}/{06}/atmos/gfs.t{06}z.pgrb2.0p25.f0{01}".format(sd)
+        get_data = 'cd /home/miade/Build_WRF/DATA/matthew && curl ' \
+                   'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
+                   '.{}/06/atmos/gfs.t06z.pgrb2.0p25.f001'.format(sd)
         os.system(get_data)
         os.system("/home/miade/Build_WRF/WPS-4.3/util/g2print.exe /home/miade"
                   "/Build_WRF/DATA/matthew >& g2print.log")
@@ -54,33 +194,6 @@ def pre():
               " fg_name = 'FILE'"
               "/")
         os.system("./ungrib.exe")
-
-    return render_template('index.html')
-
-
-@app.route('/wps', methods=["GET", "POST"])
-def wps():
-    if request.method == "POST":
-        pass
-    return render_template('wps.html')
-
-
-@app.route('/domain', methods=["GET", "POST"])
-def domain():
-    if request.method == "POST":
-        pass
-    return render_template('geogrid_ncl.html')
-
-
-@app.route('/wrf', methods=["GET", "POST"])
-def wrf():
-    if request.method == "POST":
-        pass
-    return render_template('wrf.html')
-
-
-"""
-
 
 @app.route('/wps', methods=["GET", "POST"])
 def wrf():
@@ -170,6 +283,78 @@ e_vert = 45,
 num_metgrid_levels = 32
 dx = 27000,
 dy = 27000,
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WRF-Online</title>
+  <style>
+    body {
+    background-color: rgb(228, 237, 232);
+    }
+
+    .header {
+    font-size: 40px;
+    }
+
+  </style>
+
+</head>
+  <body>
+  <div style="text-align:center; color: white;background-color:rgb(22,8,90);">
+   <p class="header" > WRF-Online</p>
+  </div>
+    <form method="post" action="http://127.0.0.1:5000/wps" >
+      <center>
+        <h3>Unpack input GRIB data</h3>
+        <table>
+
+          <tbody>
+
+            <tr>Start Date &nbsp &nbsp &nbsp &nbsp &nbsp<input type="text"
+                                             id="start_date"
+                                             name="start_date"
+                                             value="2016-10-06_00:00:00">(yyyy-mm-dd_HH:mm:ss)</tr>
+            <br>
+            <br>
+            <tr>End Date &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp<input type="text"
+                                          id="end_date"
+                                          name="end_date"
+                                          value="2016-10-06_00:00:00"> (yyyy-mm-dd_HH:mm:ss) </tr>
+            <br>
+            <br>
+            <tr>Interval seconds &nbsp<input type="text"
+                                                    id="interval_seconds"
+                                                    name="interval_seconds"
+                                                    value="21600"></tr>
+            <br>
+            <br>
+             <tr><input value="Run ungrib.exe" type="submit"
+                                                name="ungrib.exe"
+                                                id="ungrib.exe" ></tr>
+          </tbody>
+        </table>
+
+
+
+      </center>
+
+
+
+
+    </form>
+
+  <footer>
+
+  <div align="center"><img style="width:10%;padding-top:10%;" src="/static/itulogo.png" alt="logo"></div>
+  </footer>
+  </body>
+</html>
+
+
+
 """
 
-app.run(port=5000)
+
