@@ -16,8 +16,11 @@ def dom():
 @app.route('/wps', methods=["GET", "POST"])
 def wps():
 
+    global sd
     sd = request.form.get("start_date")
+    global ed
     ed = request.form.get("end_date")
+    global isec
     isec = request.form.get("interval_seconds")
     #forecastHour hesaplamaları
     forecastHour = ""
@@ -28,14 +31,19 @@ def wps():
         forecastHour = "0" + str(saat)
     else:
         forecastHour = str(saat)
-    """"
+
     get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
                'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
                '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.f{forecastHour}'.\
         format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0], forecastHour=forecastHour)
     
     os.system(get_data)
-    """
+    get_data2 = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
+               'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
+               '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.f000'. \
+        format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0])
+
+    os.system(get_data2)
 
     familiar = 'cd /home/miade/Build_WRF/WPS-4.3/util/ && ./g2print.exe ' \
                '/home/miade/Build_WRF/DATA/gfs* >& g2print.log'
@@ -85,7 +93,6 @@ def wps():
     return render_template('wps.html')
 
 
-
 @app.route('/domain', methods=["GET", "POST"])
 def domain():
     e_we = request.form.get("e_we")
@@ -97,39 +104,41 @@ def domain():
     truelat1 = request.form.get("truelat1")
     truelat2 = request.form.get("truelat2")
     stand_lon = request.form.get("stand_lon")
-    with open("home/miade/Build_WRF/WPS-4.3/namelist.wps", "w") as fo:
-        fo.write("&share")
-        fo.write("wrf_core = 'ARW' ,")
-        fo.write("max_dom = 1,")
-        fo.write("start_date = '{}' ,".format(sd))
-        fo.write("end_date = '{}' ,".format(ed))
-        fo.write("interval_seconds = '{}' ,".format(isec))
-        fo.write("&geogrid "
-                 "parent_id = 1,"
-                 "parent_grid_ratio = 1,"
-                 " i_parent_start    =   1, "
-                 " j_parent_start    =   1,"
-                 " e_we              =  {e_we} ,"
-                 " e_sn              =  {e_sn} ,"
-                 " geog_data_res = 'default',"
-                 " dx = {dx} ,"
-                 " dy = {dy},"
-                 " map_proj = 'mercator',"
-                 " ref_lat   =  {ref_lat},"
-                 " ref_lon   = {ref_lon},"
-                 " truelat1  =  {truelat1},"
-                 " truelat2  =  {truelat2},"
-                 " stand_lon = {stand_lon},"
-                 " geog_data_path = '/home/miade/Build_WRF/WPS_GEOG'"
-                 "/"
-                 "&ungrib"
-                 " out_format = 'WPS',"
-                 " prefix = 'FILE',"
-                 "/"
-                 "&metgrid"
-                 " fg_name = 'FILE'"
-                 "/".format(e_we=e_we, e_sn=e_sn, dx=dx, dy=dy, ref_lon=ref_lon, ref_lat=ref_lat, truelat1=truelat1, truelat2=truelat2, stand_lon=stand_lon))
-        os.system('cd /home/miade/Build_WRF/WPS-4.3/ && ./geogrid.exe')
+    with open("/home/miade/Build_WRF/WPS-4.3/namelist.wps", "w") as fo:
+        fo.write("&share\n")
+        fo.write("wrf_core = 'ARW' ,\n")
+        fo.write("max_dom = 1,\n")
+        fo.write("start_date = '{}' ,\n".format(sd))
+        fo.write("end_date = '{}' ,\n".format(ed))
+        fo.write("interval_seconds = {} ,\n".format(isec))
+        fo.write("/\n")
+        fo.write("&geogrid \n"
+                 "parent_id = 1,\n"
+                 "parent_grid_ratio = 1,\n"
+                 " i_parent_start    =   1, \n"
+                 " j_parent_start    =   1,\n"
+                 " e_we              =  {e_we} ,\n"
+                 " e_sn              =  {e_sn} ,\n"
+                 " geog_data_res = 'default',\n"
+                 " dx = {dx} ,\n"
+                 " dy = {dy},\n"
+                 " map_proj = 'mercator',\n"
+                 " ref_lat   =  {ref_lat},\n"
+                 " ref_lon   = {ref_lon},\n"
+                 " truelat1  =  {truelat1},\n"
+                 " truelat2  =  {truelat2},\n"
+                 " stand_lon = {stand_lon},\n"
+                 " geog_data_path = '/home/miade/Build_WRF/WPS_GEOG'\n"
+                 "/\n"
+                 "&ungrib\n"
+                 " out_format = 'WPS',\n"
+                 " prefix = 'FILE',\n"
+                 "/\n"
+                 "&metgrid\n"
+                 " fg_name = 'FILE'\n"
+                 "/\n".format(e_we=e_we, e_sn=e_sn, dx=dx, dy=dy, ref_lat=ref_lat, ref_lon=ref_lon, truelat1=truelat1, truelat2=truelat2, stand_lon=stand_lon))
+        fo.close()
+        os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./geogrid.exe")
     return render_template('geogrid_ncl.html')
 
 

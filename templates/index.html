@@ -25,27 +25,32 @@
 
           <tbody>
 
-            <tr>Start Date &nbsp &nbsp &nbsp &nbsp &nbsp<input type="text"
+            <tr>Start Date &nbsp &nbsp &nbsp &nbsp<input type="text"
                                              id="start_date"
                                              name="start_date"
                                              value="2016-10-06_00:00:00">(yyyy-mm-dd_HH:mm:ss)</tr>
             <br>
             <br>
-            <tr>End Date &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp<input type="text"
+            <tr>End Date &nbsp &nbsp &nbsp &nbsp &nbsp<input type="text"
                                           id="end_date"
                                           name="end_date"
                                           value="2016-10-06_00:00:00"> (yyyy-mm-dd_HH:mm:ss) </tr>
             <br>
             <br>
-            <tr>Interval seconds &nbsp<input type="text"
+            <tr>Interval seconds &nbsp &nbsp &nbsp <input type="text"
                                                     id="interval_seconds"
                                                     name="interval_seconds"
-                                                    value="21600"></tr>
+                                                    value="21600"> (Please enter in seconds)</tr>
             <br>
             <br>
              <tr><input value="Run ungrib.exe" type="submit"
                                                 name="ungrib.exe"
                                                 id="ungrib.exe" ></tr>
+            <br>
+            <br>
+          <p> <em> NOTE : Be sure you enter the dates in the specified formats and <br>
+            if you want to download extra data for different interval seconds, <br>
+            come back to this page and enter a different interval.</em></p>
           </tbody>
         </table>
 
@@ -60,7 +65,7 @@
 
   <footer>
 
-  <div align="center"><img style="width:10%;padding-top:10%;" src="/static/itulogo.png" alt="logo"></div>
+  <div align="center"><img style="width:10%;padding-top:5%;" src="/static/itulogo.png" alt="logo"></div>
   </footer>
   </body>
 </html>
