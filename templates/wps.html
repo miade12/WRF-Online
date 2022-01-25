@@ -17,7 +17,7 @@
   <div style="text-align:center; color: white;background-color:rgb(22,8,90);">
    <p class="header" > WRF-Online</p>
   </div>
-    <form method="post" action="http://127.0.0.1:5000/domain" >
+    <form method="post" action="http://127.0.0.1:5000/wps" >
       <center>
         <h3>Set up the model domain</h3>
         <table>
@@ -26,48 +26,57 @@
 
             <tr> e_we &nbsp &nbsp<input type="text"
                                              id="e_we"
-                                             name="e_we"></tr>
+                                             name="e_we"
+            value="91"></tr>
             <br>
             <br>
             <tr>e_sn &nbsp &nbsp<input type="text"
                                           id="e_sn"
-                                          name="e_sn"></tr>
+                                          name="e_sn"
+            value="100"></tr>
             <br>
             <br>
             <tr>dx &nbsp &nbsp<input type="text"
                                      id="dx"
-                                     name="dx"></tr>
+                                     name="dx"
+            value="27000"></tr>
             <br>
             <br>
             <tr>dy &nbsp &nbsp<input type="text"
                                      id="dy"
-                                     name="dy"></tr>
+                                     name="dy"
+            value="27000"></tr>
             <br>
             <br>
 
             <tr>ref_lat &nbsp &nbsp<input type="text"
                                           id="ref_lat"
-                                          name="ref_lat"></tr>
+                                          name="ref_lat"
+            value="41"></tr>
             <br>
             <br>
             <tr>ref_lon &nbsp &nbsp<input type="text"
                                           id="ref_lon"
-                                          name="ref_lon"></tr>
+                                          name="ref_lon"
+            value="29"></tr>
             <br>
             <br>
             <tr>truelat1 &nbsp&nbsp<input type="text"
                                            id="truelat1"
-                                           name="truelat1"></tr>
+                                           name="truelat1"
+            value="30.0"></tr>
             <br>
             <br>
             <tr>truelat2 &nbsp &nbsp<input type="text"
                                            id="truelat2"
-                                           name="truelat2"></tr>
+                                           name="truelat2"
+            value="60.0"></tr>
             <br>
             <br>
             <tr>stand_lon &nbsp &nbsp<input type="text"
                                                     id="stand_lon"
-                                                    name="stand_lon"></tr>
+                                                    name="stand_lon"
+            value="29"></tr>
             <br>
             <br>
              <tr><input value="Run geogrid.exe and then metgrid.exe" type="submit"
