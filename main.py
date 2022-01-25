@@ -95,14 +95,23 @@ def wps():
 
 @app.route('/domain', methods=["GET", "POST"])
 def domain():
+    global e_we
     e_we = request.form.get("e_we")
+    global e_sn
     e_sn = request.form.get("e_sn")
+    global dx
     dx = request.form.get("dx")
+    global dy
     dy = request.form.get("dy")
+    global ref_lat
     ref_lat = request.form.get("ref_lat")
+    global ref_lon
     ref_lon = request.form.get("ref_lon")
+    global truelat1
     truelat1 = request.form.get("truelat1")
+    global truelat2
     truelat2 = request.form.get("truelat2")
+    global stand_lon
     stand_lon = request.form.get("stand_lon")
     with open("/home/miade/Build_WRF/WPS-4.3/namelist.wps", "w") as fo:
         fo.write("&share\n")
@@ -144,7 +153,126 @@ def domain():
 
 @app.route('/wrf', methods=["GET", "POST"])
 def wrf():
-    pass
+    run_days = request.form.get("run_days")
+    run_hours = request.form.get("run_hours")
+    run_minutes = request.form.get("run_minutes")
+    run_seconds = request.form.get("run_seconds")
+    start_year = request.form.get("start_year")
+    start_month = request.form.get("start_month")
+    start_day = request.form.get("start_day")
+    start_hour = request.form.get("start_hour")
+    end_year = request.form.get("end_year")
+    end_month = request.form.get("end_month")
+    end_day = request.form.get("end_day")
+    end_hour = request.form.get("end_hour")
+    interval_seconds = request.form.get("interval_seconds")
+
+    with open("/home/miade/Build_WRF/WPS-4.3/namelist.wps", "w") as fo:
+        fo.write(
+                    "&time_control\n"
+                    "run_days = {run_days},\n"
+                    "run_hours = {run_hours},\n"
+                    "run_minutes = {run_minutes},\n"
+                    "run_seconds = {run_seconds},\n"
+                    "start_year = {start_year},\n"
+                    "start_month = {start_month},\n"
+                    "start_day = {start_day},\n"
+                    "start_hour = {start_hour},\n"
+                    "end_year = {end_year},\n"
+                    "end_month = {end_month},\n"
+                    "end_day = {end_day},\n"
+                    "end_hour = {end_hour},\n"
+                    "interval_seconds = {interval_seconds}\n"
+                    "input_from_file =.true.,\n"
+                    "history_interval = 180,\n"
+                    "frames_per_outfile = 1,\n"
+                    "restart =.false.,\n"
+                    "restart_interval = 1440,\n"
+                    "io_form_history = 2\n"
+                    "io_form_restart = 2\n"
+                    "io_form_input = 2\n"
+                    "io_form_boundary = 2\n"
+                    "/\n"
+                
+                    "&domains\n"
+                    "time_step = 150,\n"
+                    "time_step_fract_num = 0,\n"
+                    "time_step_fract_den = 1,\n"
+                    "max_dom = 1,\n"
+                    "e_we = {e_we},\n"
+                    "e_sn = {e_sn},\n"
+                    "e_vert = 45,\n"
+                    "dzstretch_s = 1.1\n"
+                    "p_top_requested = 5000,\n"
+                    "num_metgrid_levels = 34,\n"
+                    "num_metgrid_soil_levels = 4,\n"
+                    "dx = {dx},\n"
+                    "dy = {dy},\n"
+                    "grid_id = 1,\n"
+                    "parent_id = 0,\n"
+                    "i_parent_start = 1,\n"
+                    "j_parent_start = 1,\n"
+                    "parent_grid_ratio = 1,\n"
+                    "parent_time_step_ratio = 1,\n"
+                    "feedback = 1,\n"
+                    "smooth_option = 0\n"
+                    "/\n"
+                    "&physics\n"
+                    "physics_suite = 'CONUS'\n"
+                    "mp_physics = -1, -1,\n"
+                    "cu_physics = -1, -1,\n"
+                    "ra_lw_physics = -1, -1,\n"
+                    "ra_sw_physics = -1, -1,\n"
+                    "bl_pbl_physics = -1, -1,\n"
+                    "sf_sfclay_physics = -1, -1,\n"
+                    "sf_surface_physics = -1, -1,\n"
+                    "radt = 15, 15,\n"
+                    "bldt = 0, 0,\n"
+                    "cudt = 0, 0,\n"
+                    "icloud = 1,\n"
+                    "num_land_cat = 21,\n"
+                    "sf_urban_physics = 0, 0,\n"
+                    "fractional_seaice = 1,\n"
+                    "/\n"
+                
+                    "&fdda\n"
+                    "/\n"
+                
+                    "&dynamics\n"
+                    "hybrid_opt = 2,\n"
+                    "w_damping = 0,\n"
+                    "diff_opt = 2, 2,\n"
+                    "km_opt = 4, 4,\n"
+                    "diff_6th_opt = 0, 0,\n"
+                    "diff_6th_factor = 0.12, 0.12,\n"
+                    "base_temp = 290.\n"
+                    "damp_opt = 3,\n"
+                    "zdamp = 5000., 5000.,\n"
+                    "dampcoef = 0.2, 0.2,\n"
+                    "khdif = 0, 0,\n"
+                    "kvdif = 0, 0,\n"
+                    "non_hydrostatic =.true.,.true.,\n"
+                    "moist_adv_opt = 1, 1,\n"
+                    "scalar_adv_opt = 1, 1,\n"
+                    "gwd_opt = 1, 0,\n"
+                    "/\n"
+                
+                    "&bdy_control\n"
+                    "spec_bdy_width = 5,\n"
+                    "specified =.true.\n"
+                    "/\n"
+                
+                    "&grib2\n"
+                    "/\n"
+
+                    "&namelist_quilt\n"
+                    "nio_tasks_per_group = 0,\n"
+                    "nio_groups = 1,".format(run_days=run_days, run_hours=run_hours, run_minutes=run_minutes,
+                                             run_seconds=run_seconds, start_year=start_year, start_month=start_month,
+                                             start_day=start_day, start_hour=start_hour, end_year=end_year,
+                                             end_month=end_month, end_day=end_day, end_hour=end_hour,
+                                             interval_seconds=interval_seconds, e_we=e_we, e_sn=e_sn, dx=dx, dy=dy))
+
     return render_template('wrf.html')
 
 
@@ -152,12 +280,7 @@ app.run(port=5000)
 
 
 """
-
-
-    
-    
-    
-    
+  
         sd = request.form.get("start_date")
         ed = request.form.get("end_date")
         isec = request.form.get("interval_seconds")
