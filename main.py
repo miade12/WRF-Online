@@ -3,6 +3,17 @@ from flask import Flask, request, render_template, url_for, redirect
 from typing import Optional
 import os
 import subprocess
+from datetime import date
+
+
+
+
+
+
+
+
+    
+
 
 
 app = Flask(__name__, static_url_path='/static')
@@ -17,15 +28,42 @@ def un():
         ed = request.form.get("end_date")
         global isec
         isec = request.form.get("interval_seconds")
-        # forecastHour hesaplamaları
-        forecastHour = ""
-        saat = int(int(isec) / 3600)
-        if saat < 10:
-            forecastHour = "00" + str(saat)
-        elif saat < 100:
-            forecastHour = "0" + str(saat)
-        else:
-            forecastHour = str(saat)
+
+        sd_year = sd.split("_")[0].replace("-", "")[0:4]
+        sd_month = sd.split("_")[0].replace("-", "")[4:6]
+        sd_days = sd.split("_")[0].replace("-", "")[6:8]
+        sd_hours = sd.split("_")[1].replace("-", "")[0:2]
+        d0 = date(int(sd_year), int(sd_month), int(sd_days))
+
+        ed_year = ed.split("_")[0].replace("-", "")[0:4]
+        ed_month = ed.split("_")[0].replace("-", "")[4:6]
+        ed_days = ed.split("_")[0].replace("-", "")[6:8]
+        ed_hours = ed.split("_")[1].replace("-", "")[0:2]
+        d1 = date(int(ed_year), int(ed_month), int(ed_days))
+
+        fark_saat = (int(ed_hours) - int(sd_hours))
+        farkdate = d1 - d0
+        hour = (farkdate.days)*24 + int(fark_saat)
+
+        bitis = int(isec)/3600
+
+        for i in range(0, int(hour), int(bitis)):
+            forecastHour = ""
+            if int(i / 100) != 0:
+                forecastHour = "f" + str(i)
+            elif int(i / 10) != 0:
+                forecastHour = "f0" + str(i)
+            else:
+                forecastHour = "f00" + str(i)
+
+        get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
+                   'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
+                   '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.{forecastHour}'. \
+            format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0],
+                   forecastHour=forecastHour)
+        os.system(get_data)
+
+
         """""
         get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
                    'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
@@ -33,13 +71,8 @@ def un():
             format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0], forecastHour=forecastHour)
     
         os.system(get_data)
-        get_data2 = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
-                   'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
-                   '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.f000'. \
-            format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0])
-    
-        os.system(get_data2)
         """""
+
         familiar = 'cd /home/miade/Build_WRF/WPS-4.3/util/ && ./g2print.exe ' \
                    '/home/miade/Build_WRF/DATA/gfs* >& g2print.log'
         os.system(familiar)
@@ -161,6 +194,7 @@ def wps():
 def domain():
     if request.method == "POST":
         os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./geogrid.exe")
+        os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./metgrid.exe")
         return redirect(url_for('wrf'))
     else:
         return render_template('domain.html')
@@ -288,6 +322,10 @@ def wrf():
                                          start_day=start_day, start_hour=start_hour, end_year=end_year,
                                          end_month=end_month, end_day=end_day, end_hour=end_hour,
                                          interval_seconds=interval_seconds, e_we=e_we, e_sn=e_sn, dx=dx, dy=dy))
+            os.system("cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./real.exe")
+            os.system("cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./wrf.exe")
+            output_ncl = "cd /home/miade/PycharmProjects/WRF-Online/static && ncl surface.ncl"
+            os.system(output_ncl)
 
         return redirect(url_for('output'))
     else:
@@ -307,7 +345,17 @@ app.run(port=5000)
 
 
 """
-  
+   # forecastHour hesaplamaları
+        forecastHour = ""
+        saat = int(int(isec) / 3600)
+        if saat < 10:
+            forecastHour = "00" + str(saat)
+        elif saat < 100:
+            forecastHour = "0" + str(saat)
+        else:
+            forecastHour = str(saat)
+            
+            
         sd = request.form.get("start_date")
         ed = request.form.get("end_date")
         isec = request.form.get("interval_seconds")
