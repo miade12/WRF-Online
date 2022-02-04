@@ -1,19 +1,11 @@
 # importing Flask and other modules
-from flask import Flask, request, render_template, url_for, redirect
+from time import sleep
+
+from flask import Flask, request, render_template, url_for, redirect, send_file
 from typing import Optional
 import os
 import subprocess
 from datetime import date
-
-
-
-
-
-
-
-
-    
-
 
 
 app = Flask(__name__, static_url_path='/static')
@@ -45,33 +37,26 @@ def un():
         farkdate = d1 - d0
         hour = (farkdate.days)*24 + int(fark_saat)
 
-        bitis = int(isec)/3600
+        adimsayisi = int(isec)/3600
 
-        for i in range(0, int(hour), int(bitis)):
+        for i in range(0, int(hour)+int(adimsayisi), int(adimsayisi)):
+
             forecastHour = ""
             if int(i / 100) != 0:
-                forecastHour = "f" + str(i)
+               forecastHour = "f" + str(i)
             elif int(i / 10) != 0:
-                forecastHour = "f0" + str(i)
+               forecastHour = "f0" + str(i)
             else:
-                forecastHour = "f00" + str(i)
-
-        get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
-                   'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
-                   '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.{forecastHour}'. \
+               forecastHour = "f00" + str(i)
+            """""
+            get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
+                       'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
+                       '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.{forecastHour}'. \
             format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0],
-                   forecastHour=forecastHour)
-        os.system(get_data)
+                      forecastHour=forecastHour)
+            os.system(get_data)
+            """""
 
-
-        """""
-        get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
-                   'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
-                   '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.f{forecastHour}'.\
-            format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0], forecastHour=forecastHour)
-    
-        os.system(get_data)
-        """""
 
         familiar = 'cd /home/miade/Build_WRF/WPS-4.3/util/ && ./g2print.exe ' \
                    '/home/miade/Build_WRF/DATA/gfs* >& g2print.log'
@@ -101,11 +86,11 @@ def un():
                 " dx = 27000,\n"
                 " dy = 27000,\n"
                 " map_proj = 'mercator',\n"
-                " ref_lat   =  28.00,\n"
-                " ref_lon   = -75.00,\n"
+                " ref_lat   =  60.00,\n"
+                " ref_lon   = 45.00,\n"
                 " truelat1  =  30.0,\n"
                 " truelat2  =  60.0,\n"
-                " stand_lon = -75.0,\n"
+                " stand_lon = 45.0,\n"
                 " geog_data_path = '/home/miade/Build_WRF/WPS_GEOG'\n"
                 "/\n"
                 "&ungrib\n"
@@ -117,11 +102,9 @@ def un():
                 "/")
             fo.close()
 
-            os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./ungrib.exe")
-            return redirect(url_for('wps'))
-
+        os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./ungrib.exe")
+        return redirect(url_for('wps'))
     else:
-
         return render_template("index.html")
 
 
@@ -164,7 +147,7 @@ def wps():
                      " geog_data_res = 'default',\n"
                      " dx = {dx} ,\n"
                      " dy = {dy},\n"
-                     " map_proj = 'mercator',\n"
+                     " map_proj = 'lambert',\n"
                      " ref_lat   =  {ref_lat},\n"
                      " ref_lon   = {ref_lon},\n"
                      " truelat1  =  {truelat1},\n"
@@ -181,13 +164,12 @@ def wps():
                      "/\n".format(e_we=e_we, e_sn=e_sn, dx=dx, dy=dy, ref_lat=ref_lat, ref_lon=ref_lon, truelat1=truelat1,
                                   truelat2=truelat2, stand_lon=stand_lon))
             fo.close()
-            ncl_domain = 'cd /home/miade/PycharmProjects/WRF-Online/statics/ && ncl plotgrids_new.ncl'
-            os.system(ncl_domain)
-            # subprocess.Popen(ncl_domain)
-
+        ncl_domain = 'cd /home/miade/PycharmProjects/WRF-Online/static && ncl plotgrids_new.ncl'
+        os.system(ncl_domain)
         return redirect(url_for('domain'))
     else:
-        return render_template('wps.html')
+
+        return render_template("wps.html")
 
 
 @app.route('/domain', methods=["GET", "POST"])
@@ -197,7 +179,7 @@ def domain():
         os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./metgrid.exe")
         return redirect(url_for('wrf'))
     else:
-        return render_template('domain.html')
+        return render_template("domain.html")
 
 
 @app.route('/wrf', methods=["GET", "POST"])
@@ -341,6 +323,10 @@ def output():
         return render_template('output.html')
 
 
+@app.route('/download', methods=["GET", "POST"])
+def download():
+    return send_file("/home/miade/Desktop/plt_Surface1.000002.png", as_attachment=True)
+
 app.run(port=5000)
 
 
@@ -425,7 +411,7 @@ def wrf():
                    yukarıdaki satırları html sayfaları tamamlandıktan sonra ekle.!
     
        
-fin = open('/home/miade/PycharmProjects/WRF-Online/wrf_statics/test_namelist_wps.py', 'wt')
+fin = open('/home/miade/PycharmProjects/WRF-Online/wrf_static/test_namelist_wps.py', 'wt')
         
         for line in fin:
             fin.write(line.replace('{}', sd))

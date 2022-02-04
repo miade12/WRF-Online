@@ -15,16 +15,16 @@
   </style>
 </head>
 <body>
-<script src="/home/miade/wps_show_dom.png"></script>
 <div style="text-align:center; color: white;background-color:rgb(22,8,90);">
    <p class="header" > WRF-Online</p>
   </div>
 <center>
 <p>Please Check the Domain:</p>
-<div>
-   <img src="/static/wps_show_dom.png" alt="wpsdomain" style="width:30%">
-</div>
+
     <form method="post" action="http://127.0.0.1:5000/domain">
+        <div>
+        <img src="/static/wps_show_dom.png" alt="wpsdomain" style="width:30%">
+        </div>
         <input value="Run geogrid.exe and then metgrid.exe"
                type="submit"
                name="domaincheck"
