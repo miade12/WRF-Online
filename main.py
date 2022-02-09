@@ -6,7 +6,7 @@ from typing import Optional
 import os
 import subprocess
 from datetime import date
-
+import threading
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -15,12 +15,17 @@ app = Flask(__name__, static_url_path='/static')
 def un():
     if request.method == "POST":
         global sd
-        sd = request.form.get("start_date")
+        sd = request.form.get("start_date") # string şeklinde yyyy-aa-gg formatında
         global ed
         ed = request.form.get("end_date")
         global isec
         isec = request.form.get("interval_seconds")
+        global gfs_baslangic_saati
+        gfs_baslangic_saati = request.form.get("gfsBaslangicSaati")
+        global gfs_bitis_saati
+        gfs_bitis_saati= request.form.get("gfsBitisSaati")
 
+        """""
         sd_year = sd.split("_")[0].replace("-", "")[0:4]
         sd_month = sd.split("_")[0].replace("-", "")[4:6]
         sd_days = sd.split("_")[0].replace("-", "")[6:8]
@@ -32,12 +37,16 @@ def un():
         ed_days = ed.split("_")[0].replace("-", "")[6:8]
         ed_hours = ed.split("_")[1].replace("-", "")[0:2]
         d1 = date(int(ed_year), int(ed_month), int(ed_days))
-
-        fark_saat = (int(ed_hours) - int(sd_hours))
+        """""
+        d0 = date(int(sd.split('-')[0]), int(sd.split('-')[1]), int(sd.split('-')[2]))
+        d1 = date(int(ed.split('-')[0]), int(ed.split('-')[1]), int(ed.split('-')[2]))
+        global fark_saat
+        fark_saat = (int(gfs_bitis_saati) - int(gfs_baslangic_saati))
+        global farkdate
         farkdate = d1 - d0
         hour = (farkdate.days)*24 + int(fark_saat)
 
-        adimsayisi = int(isec)/3600
+        adimsayisi = int(isec)
 
         for i in range(0, int(hour)+int(adimsayisi), int(adimsayisi)):
 
@@ -48,15 +57,13 @@ def un():
                forecastHour = "f0" + str(i)
             else:
                forecastHour = "f00" + str(i)
-            """""
-            get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
-                       'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
-                       '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.{forecastHour}'. \
-            format(tarih=sd.split("_")[0].replace("-", ""), saatBaslangici=sd.split("_")[1].split(":")[0],
-                      forecastHour=forecastHour)
-            os.system(get_data)
-            """""
 
+            #get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
+                       #'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
+                       #'.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.{forecastHour}'. \
+            #format(tarih=sd.replace("-", ""), saatBaslangici=gfs_baslangic_saati,
+                      #forecastHour=forecastHour)
+            #os.system(get_data)
 
         familiar = 'cd /home/miade/Build_WRF/WPS-4.3/util/ && ./g2print.exe ' \
                    '/home/miade/Build_WRF/DATA/gfs* >& g2print.log'
@@ -70,9 +77,9 @@ def un():
             fo.write("&share\n")
             fo.write("wrf_core = 'ARW' ,\n")
             fo.write("max_dom = 1,\n")
-            fo.write("start_date = '{}' ,\n".format(sd))
-            fo.write("end_date = '{}' ,\n".format(ed))
-            fo.write("interval_seconds = {} ,\n".format(isec))
+            fo.write("start_date = '{}' ,\n".format(sd+"_"+gfs_baslangic_saati+":00:00"))
+            fo.write("end_date = '{}' ,\n".format(ed+"_"+gfs_bitis_saati+":00:00"))
+            fo.write("interval_seconds = {} ,\n".format(str(int(isec)*3600)))
             fo.write("/\n")
             fo.write(
                 "&geogrid\n"
@@ -115,10 +122,8 @@ def wps():
         e_we = request.form.get("e_we")
         global e_sn
         e_sn = request.form.get("e_sn")
-        global dx
-        dx = request.form.get("dx")
-        global dy
-        dy = request.form.get("dy")
+        global dxdy
+        dxdy = request.form.get("dxdy")
         global ref_lat
         ref_lat = request.form.get("ref_lat")
         global ref_lon
@@ -133,9 +138,9 @@ def wps():
             fo.write("&share\n")
             fo.write("wrf_core = 'ARW' ,\n")
             fo.write("max_dom = 1,\n")
-            fo.write("start_date = '{}' ,\n".format(sd))
-            fo.write("end_date = '{}' ,\n".format(ed))
-            fo.write("interval_seconds = {} ,\n".format(isec))
+            fo.write("start_date = '{}' ,\n".format(sd+"_"+gfs_baslangic_saati+":00:00"))
+            fo.write("end_date = '{}' ,\n".format(ed+"_"+gfs_bitis_saati+":00:00"))
+            fo.write("interval_seconds = {} ,\n".format(str(int(isec)*3600)))
             fo.write("/\n")
             fo.write("&geogrid \n"
                      "parent_id = 1,\n"
@@ -161,11 +166,14 @@ def wps():
                      "/\n"
                      "&metgrid\n"
                      " fg_name = 'FILE'\n"
-                     "/\n".format(e_we=e_we, e_sn=e_sn, dx=dx, dy=dy, ref_lat=ref_lat, ref_lon=ref_lon, truelat1=truelat1,
-                                  truelat2=truelat2, stand_lon=stand_lon))
+                     "/\n".format(e_we=e_we, e_sn=e_sn, dx=dxdy+"000", dy=dxdy+"000", ref_lat=ref_lat, ref_lon=ref_lon, truelat1=truelat1,
+                                  truelat2=truelat2, stand_lon=ref_lon))
             fo.close()
-        ncl_domain = 'cd /home/miade/PycharmProjects/WRF-Online/static && ncl plotgrids_new.ncl'
-        os.system(ncl_domain)
+        ncl_domain = 'cd /home/miade/PycharmProjects/WRF-Online/static &&' \
+                     'ncl plotgrids_new.ncl'
+
+        threading.Thread(target=os.system, args=(ncl_domain,)).start() #os.system(ncl_domain)
+        sleep(10)
         return redirect(url_for('domain'))
     else:
 
@@ -177,7 +185,11 @@ def domain():
     if request.method == "POST":
         os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./geogrid.exe")
         os.system("cd /home/miade/Build_WRF/WPS-4.3/ && ./metgrid.exe")
+        link_metgrid = "cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/ && " \
+                       "ln -sf /home/miade/Build_WRF/WPS-4.3/met_em* /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/ "
+        os.system(link_metgrid)
         return redirect(url_for('wrf'))
+
     else:
         return render_template("domain.html")
 
@@ -185,23 +197,30 @@ def domain():
 @app.route('/wrf', methods=["GET", "POST"])
 def wrf():
     if request.method == "POST":
-        run_days = request.form.get("run_days")
-        run_hours = request.form.get("run_hours")
-        run_minutes = request.form.get("run_minutes")
-        run_seconds = request.form.get("run_seconds")
-        start_year = request.form.get("start_year")
-        start_month = request.form.get("start_month")
-        start_day = request.form.get("start_day")
-        start_hour = request.form.get("start_hour")
-        end_year = request.form.get("end_year")
-        end_month = request.form.get("end_month")
-        end_day = request.form.get("end_day")
-        end_hour = request.form.get("end_hour")
-        interval_seconds = request.form.get("interval_seconds")
+        if fark_saat < 0:
+            run_days = farkdate.days - 1
+            run_hours = 24 + fark_saat
+        else:
+            run_days = farkdate.days
+            run_hours = fark_saat
+        microphy = request.form.get("microphy")
+        pbl = request.form.get("pbl")
+        cumulus = request.form.get("cumulus")
+        core = request.form.get("core")
+
+        start_year = sd.split('-')[0]
+        start_month = sd.split('-')[1]
+        start_day = sd.split('-')[2]
+        start_hour = gfs_baslangic_saati
+        end_year = ed.split('-')[0]
+        end_month = ed.split('-')[1]
+        end_day = ed.split('-')[2]
+        end_hour = gfs_bitis_saati
+        interval_seconds = str(int(isec)*3600)
 
         with open("/home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/namelist.input", "w") as fo:
             fo.write(
-                "&time_control\n"
+                "&time_control \n"
                 "run_days = {run_days},\n"
                 "run_hours = {run_hours},\n"
                 "run_minutes = {run_minutes},\n"
@@ -228,6 +247,14 @@ def wrf():
     
                 "&domains\n"
                 "time_step = 150,\n"
+                "use_adaptive_time_step              = .true., \n"
+                "step_to_output_time                 = .true., \n"
+                "target_cfl                          = 1.2, 1.2, 1.2, \n"
+                "max_step_increase_pct               = 5, 51, 51, \n"
+                "starting_time_step                  = -1, -1,-1, \n"
+                "max_time_step                       = -1, -1,-1, \n"
+                "min_time_step                       = -1, -1,-1, \n"
+                "adaptation_domain                   = 1, \n"
                 "time_step_fract_num = 0,\n"
                 "time_step_fract_den = 1,\n"
                 "max_dom = 1,\n"
@@ -251,12 +278,12 @@ def wrf():
                 "/\n"
                 "&physics\n"
                 "physics_suite = 'CONUS'\n"
-                "mp_physics = -1, -1,\n"
-                "cu_physics = -1, -1,\n"
+                "mp_physics = {microphy}, -1,\n"
+                "cu_physics = {cumulus}, -1,\n"
                 "ra_lw_physics = -1, -1,\n"
                 "ra_sw_physics = -1, -1,\n"
-                "bl_pbl_physics = -1, -1,\n"
-                "sf_sfclay_physics = -1, -1,\n"
+                "bl_pbl_physics = {pbl}, -1,\n"
+                "sf_sfclay_physics = {pbl}, -1,\n"
                 "sf_surface_physics = -1, -1,\n"
                 "radt = 15, 15,\n"
                 "bldt = 0, 0,\n"
@@ -299,33 +326,42 @@ def wrf():
     
                 "&namelist_quilt\n"
                 "nio_tasks_per_group = 0,\n"
-                "nio_groups = 1,".format(run_days=run_days, run_hours=run_hours, run_minutes=run_minutes,
-                                         run_seconds=run_seconds, start_year=start_year, start_month=start_month,
+                "nio_groups = 1,"
+                "/\n".format(run_days=str(run_days), run_hours=str(run_hours), run_minutes="00",
+                             run_seconds="00", start_year=start_year, start_month=start_month,
                                          start_day=start_day, start_hour=start_hour, end_year=end_year,
                                          end_month=end_month, end_day=end_day, end_hour=end_hour,
-                                         interval_seconds=interval_seconds, e_we=e_we, e_sn=e_sn, dx=dx, dy=dy))
-            os.system("cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./real.exe")
-            os.system("cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./wrf.exe")
-            output_ncl = "cd /home/miade/PycharmProjects/WRF-Online/static && ncl surface.ncl"
-            os.system(output_ncl)
+                                         interval_seconds=interval_seconds, e_we=e_we, e_sn=e_sn, dx=dxdy+"000",
+                             dy=dxdy+"000", microphy=microphy, cumulus=cumulus, pbl=pbl))
+
+        delete_prev_outputs = "rm /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/wrfout* " \
+                              "/home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/outputs.zip"
+
+        os.system(delete_prev_outputs)
 
         return redirect(url_for('output'))
     else:
-        return render_template('wrf.html')
+        return render_template("wrf.html")
 
 
 @app.route('/output', methods=["GET", "POST"])
 def output():
-    if request.method == "POST":
-        pass
-        return redirect(url_for('output'))
-    else:
+    if request.method == "GET":
+        realrun = "cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./real.exe"
+        wrfrun = "cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./wrf.exe"
+        os.system(realrun)
+        os.system(wrfrun)
         return render_template('output.html')
+    else:
+        return send_file("/home/miade/outputs.zip", as_attachment=True)
 
 
 @app.route('/download', methods=["GET", "POST"])
 def download():
-    return send_file("/home/miade/Desktop/plt_Surface1.000002.png", as_attachment=True)
+    create_tar_file = "zip outputs.zip /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/wrfout*"
+    os.system(create_tar_file)
+    return send_file("/home/miade/outputs.zip", as_attachment=True)
+
 
 app.run(port=5000)
 
