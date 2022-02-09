@@ -58,12 +58,13 @@ def un():
             else:
                forecastHour = "f00" + str(i)
 
-            #get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
-                       #'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
-                       #'.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.{forecastHour}'. \
-            #format(tarih=sd.replace("-", ""), saatBaslangici=gfs_baslangic_saati,
-                      #forecastHour=forecastHour)
-            #os.system(get_data)
+            get_data = 'cd /home/miade/Build_WRF/DATA/ && wget ' \
+                       'https://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs' \
+                       '.{tarih}/{saatBaslangici}/atmos/gfs.t{saatBaslangici}z.pgrb2.1p00.{forecastHour}'\
+                       .format(tarih=sd.replace("-", ""), saatBaslangici=gfs_baslangic_saati,
+                               forecastHour=forecastHour)
+            os.system(get_data)
+
 
         familiar = 'cd /home/miade/Build_WRF/WPS-4.3/util/ && ./g2print.exe ' \
                    '/home/miade/Build_WRF/DATA/gfs* >& g2print.log'
@@ -339,6 +340,7 @@ def wrf():
 
         os.system(delete_prev_outputs)
 
+
         return redirect(url_for('output'))
     else:
         return render_template("wrf.html")
@@ -347,20 +349,24 @@ def wrf():
 @app.route('/output', methods=["GET", "POST"])
 def output():
     if request.method == "GET":
+
         realrun = "cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./real.exe"
         wrfrun = "cd /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real && ./wrf.exe"
         os.system(realrun)
         os.system(wrfrun)
+
+        create_tar_file = "zip /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/outputs.zip " \
+                          "/home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/wrfout*"
+        os.system(create_tar_file)
         return render_template('output.html')
     else:
-        return send_file("/home/miade/outputs.zip", as_attachment=True)
+        return send_file("/home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/outputs.zip", as_attachment=True)
 
 
 @app.route('/download', methods=["GET", "POST"])
 def download():
-    create_tar_file = "zip outputs.zip /home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/wrfout*"
-    os.system(create_tar_file)
-    return send_file("/home/miade/outputs.zip", as_attachment=True)
+
+    return send_file("/home/miade/Build_WRF/WRF-4.3-ARW/test/em_real/outputs.zip", as_attachment=True)
 
 
 app.run(port=5000)
